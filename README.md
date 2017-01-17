@@ -79,6 +79,7 @@ public static function SW_blocksEncrypt(
     $dataArray);
 ```
 - 参数说明
+
 数据类型|参数名|说明
 ---|---|---
 socket|$socket|与密码机建立的连接句柄
@@ -91,8 +92,10 @@ string|$sessionKeyFactor|会话密钥因子
 int|$paddingFlag|填充算法标识
 string|$iv|初始向量
 array|$dataArray|多个明文数据段组成的数组
+
 - 返回值
  多个密文数据段组成的数据，成员为string类型的array
+
 - 异常信息
  Exception: 执行失败时抛出异常
 
@@ -110,7 +113,9 @@ public static function SW_blocksDecrypt(
     $iv,
     $dataArray){
 ```
+
 - 参数说明
+
 数据类型|参数名|说明
 ---|---|---
 socket|$socket|与密码机建立的连接句柄
@@ -123,8 +128,10 @@ string|$sessionKeyFactor|会话密钥因子
 int|$paddingFlag|填充算法标识
 string|$iv|初始向量
 array|$dataArray|多个密文数据段组成的数组
+
 - 返回值
  多个数据段组成的数据，成员为string类型的array
+
 - 异常信息
  Exception: 执行失败时抛出异常
 
