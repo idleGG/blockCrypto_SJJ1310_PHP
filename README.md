@@ -27,34 +27,43 @@ and open the template in the editor.
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         var_dump($socket);
         $result=socket_connect($socket,$srvIp,$srvPort);
+
         if($result){
-            echo "连接成功<br />";
+            echo "连接成功\n";
+			$key = "RAD2F4FC1E7898465AD2F4FC1E7898465";
+			//$key = 1;
             
             //明文数据
             $dataArray = array("Message1 to be Encrypted", "第二个待加密数据", "\x00\x01\x02\x03");
             
             $tmp1 = "一个测试程序。";
-            echo "字符串长：".strlen($tmp1)."<br />";
+            echo "字符串长：".strlen($tmp1)."\n";
             $tmp2 = Bytes::getBytes($tmp1);
-            echo "数组长：".count($tmp2)."<br />";
+            echo "数组长：".count($tmp2)."\n";
             
-            try{
            
+            try{
                 // 此方法为多块数据加密
-                $rsp3 = cmds::SW_blocksEncrypt($socket, 0, 0x00A, 1, null, 0, null, 0, null, $dataArray);
-                for($i = 0; $i<count($dataArray); $i++){
-                    echo "<br />Cipher:".$i.$rsp3[$i]."<br />";
+				$rsp3 = cmds::SW_blocksEncrypt($socket, 0, 0x00A, $key, null, 0, null, 0, null, $dataArray);
+				echo "rsp3 ArrayLength=".count($rsp3)."\n";
+                for($i = 0; $i<count($rsp3); $i++){
+                    echo "\nCipher:".$i.$rsp3[$i]."\n";
                     var_dump(Bytes::getBytes($rsp3[$i]));    //加密后数据密文转为字节数组查看
                 }
+            }catch(Exception $e){   //失败时抛出异常，如密码机报错则异常信息中包含错误码
+                echo 'Encrypt Failed, Message: ' .$e->getMessage();
+            }
 
+            try{
                 // 此方法为多块数据解密
-                $rsp4 = cmds::SW_blocksDecrypt($socket, 0, 0x00A, 1, null, 0, null, 0, null, $rsp3);
-                for($i = 0; $i<count($dataArray); $i++){
-                    echo "<br />Plain:".$i.$rsp4[$i]."<br />";  //以字符串形式打印解密后的明文信息
+				$rsp4 = cmds::SW_blocksDecrypt($socket, 0, 0x00A, $key, null, 0, null, 0, null, $rsp3);
+				echo "rsp4 ArrayLength=".count($rsp4)."\n";
+                for($i = 0; $i<count($rsp4); $i++){
+                    echo "\nPlain:".$i.$rsp4[$i]."\n";  //以字符串形式打印解密后的明文信息
                     var_dump(Bytes::getBytes($rsp4[$i]));   //解密后数据密文转为字节数组查看
                 }
             }catch(Exception $e){   //失败时抛出异常，如密码机报错则异常信息中包含错误码
-                echo 'Message: ' .$e->getMessage();
+                echo 'Decrypt Failed, Message: ' .$e->getMessage();
             }
         }
         socket_close($socket);
@@ -69,7 +78,7 @@ and open the template in the editor.
 public static function SW_blocksEncrypt(
     $socket,
     $encFlag,
-    $keyType,
+    $keyTpe,
     $key,
     $deriveFactor,
     $sessionKeyFlag,

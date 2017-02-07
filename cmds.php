@@ -34,12 +34,14 @@ class cmds {
             $dataArray){
         $str = "SW0";
         if(is_int($encFlag) && $encFlag >= 0){ $str = $str.sprintf("%02X", $encFlag); }
-        else{ die("Invalid argument \$encFlag=$encFlag"); }
+		else{
+			throw new Exception("Invalid argument \$encFlag=$encFlag");
+		}
         if(is_int($keyType) & $keyType >= 0){ $str = $str.sprintf("%03X", $keyType); }
-        else{ die("Invalid argument \$keyType=$keyType"); }
+        else{ throw new Exception("Invalid argument \$keyType=$keyType"); }
         if(is_int($key) && $key > 0 && $key <= 9999){ $str = $str.sprintf("K%04d", $key); }
         else if(!is_null($key) && is_string($key) && (strlen($key) == 16 || (strlen($key)-1)%32 == 0)){ $str = $str.$key; }
-        else{ die("Invalid argument \$key=$key"); }
+        else{ throw new Exception("Invalid argument \$key=$key"); }
         if(!is_null($deriveFactor) && is_string($deriveFactor)){
             $str = $str.sprintf("%02X", strlen($deriveFactor)/32);
             $str = $str.$deriveFactor;
@@ -48,7 +50,7 @@ class cmds {
             $str = $str."00";
         }
         else{
-            die("Invalid argument \$deriveFactor=$deriveFactor");
+            throw new Exception("Invalid argument \$deriveFactor=$deriveFactor");
         }
         if(is_int($sessionKeyFlag) && $sessionKeyFlag >= 0){
             $str = $str.sprintf("%02X", $sessionKeyFlag);
@@ -60,7 +62,7 @@ class cmds {
             $str = $str.sprintf("%02X", $paddingFlag);
         }
         else {
-            die("Invalid argument \$paddingFlag=$paddingFlag");
+            throw new Exception("Invalid argument \$paddingFlag=$paddingFlag");
         }
         
         if(!is_null($dataArray) && is_array($dataArray)){
@@ -79,13 +81,19 @@ class cmds {
         socket_write($socket, $str, strlen($str));
         $rsp=socket_read($socket,2);
         if($rsp == FALSE){
-            die(socket_strerror(socket_last_error()));
+            throw new Exception(socket_strerror(socket_last_error()));
         }
         $len = Bytes::bytesToShortBigEnd(Bytes::getBytes($rsp), 0);
         $rsp = socket_read($socket, $len);
         if($rsp == FALSE){
-            die(socket_strerror(socket_last_error()));
+            throw new Exception(socket_strerror(socket_last_error()));
         }
+
+		$rv = intval(substr($rsp, 2, 2));
+		if($rv !== 0){
+			throw new Exception("Failed with returnCode [".$rv."].\n");
+		}
+
         
         $ret = array();
         $offset = 4;
@@ -190,6 +198,12 @@ class cmds {
         if($rsp == FALSE){
             throw new Exception(socket_strerror());
         }
+
+		$rv = intval(substr($rsp, 2, 2));
+		if($rv !== 0){
+			throw new Exception("Failed with returnCode [".$rv."].\n");
+		}
+
         $ret = array();
         $offset = 4;
         while($offset < $len){
