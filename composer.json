@@ -1,5 +1,14 @@
 {
   "name": "idlegg/blockcrypto_sjj1310",
+  "type": "library",
+  "authors": [{
+    "name": "LiuFG",
+	"homepage": "http://www.tass.com.cn"
+  }],
   "require": {
+  },
+
+  "autoload": {
+	  "files": ["cmds.php", "Bytes.php"]
   }
 }
