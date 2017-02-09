@@ -6,71 +6,59 @@
 
 ## DEMO
 ``` PHP
-<!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title></title>
-    </head>
-    <body>
-        <?php
-        include("Bytes.php");
-        include("cmds.php");
+<?php
+require __DIR__ .'/vendor/autoload.php';
+//include("vendor/autoload.php");
+//include("Bytes.php");
+//include("cmds.php");
+use cmds as cmds;
+use Bytes as Bytes;
 
-        $srvIp = "192.168.19.51";
-        $srvPort = 8018;
-        $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        var_dump($socket);
-        $result=socket_connect($socket,$srvIp,$srvPort);
-
-        if($result){
-            echo "连接成功\n";
-			$key = "RAD2F4FC1E7898465AD2F4FC1E7898465";
-			//$key = 1;
+$srvIp = "192.168.19.21";
+$srvPort = 8018;
+$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+var_dump($socket);
+$result=socket_connect($socket,$srvIp,$srvPort);
+if($result){
+    echo "连接成功\n";
+	$key = "RAD2F4FC1E7898465AD2F4FC1E7898465";
+	//$key = 1;
             
-            //明文数据
-            $dataArray = array("Message1 to be Encrypted", "第二个待加密数据", "\x00\x01\x02\x03");
+    //明文数据
+    $dataArray = array("Message1 to be Encrypted", "第二个待加密数据", "\x00\x01\x02\x03");
             
-            $tmp1 = "一个测试程序。";
-            echo "字符串长：".strlen($tmp1)."\n";
-            $tmp2 = Bytes::getBytes($tmp1);
-            echo "数组长：".count($tmp2)."\n";
+    $tmp1 = "一个测试程序。";
+    echo "字符串长：".strlen($tmp1)."\n";
+    $tmp2 = Bytes::getBytes($tmp1);
+    echo "数组长：".count($tmp2)."\n";
             
            
-            try{
-                // 此方法为多块数据加密
-				$rsp3 = cmds::SW_blocksEncrypt($socket, 0, 0x00A, $key, null, 0, null, 0, null, $dataArray);
-				echo "rsp3 ArrayLength=".count($rsp3)."\n";
-                for($i = 0; $i<count($rsp3); $i++){
-                    echo "\nCipher:".$i.$rsp3[$i]."\n";
-                    var_dump(Bytes::getBytes($rsp3[$i]));    //加密后数据密文转为字节数组查看
-                }
-            }catch(Exception $e){   //失败时抛出异常，如密码机报错则异常信息中包含错误码
-                echo 'Encrypt Failed, Message: ' .$e->getMessage();
-            }
+    try{
+		// 此方法为多块数据加密
+		$rsp3 = cmds::SW_blocksEncrypt($socket, 0, 0x00A, $key, null, 0, null, 0, null, $dataArray);
+		echo "rsp3 ArrayLength=".count($rsp3)."\n";
+		for($i = 0; $i<count($rsp3); $i++){
+			echo "\nCipher:".$i."\n";
+			var_dump(Bytes::getBytes($rsp3[$i]));    //加密后数据密文转为字节数组查看
+		}
+    }catch(Exception $e){   //失败时抛出异常，如密码机报错则异常信息中包含错误码
+        echo 'Encrypt Failed, Message: ' .$e->getMessage();
+    }
 
-            try{
-                // 此方法为多块数据解密
-				$rsp4 = cmds::SW_blocksDecrypt($socket, 0, 0x00A, $key, null, 0, null, 0, null, $rsp3);
-				echo "rsp4 ArrayLength=".count($rsp4)."\n";
-                for($i = 0; $i<count($rsp4); $i++){
-                    echo "\nPlain:".$i.$rsp4[$i]."\n";  //以字符串形式打印解密后的明文信息
-                    var_dump(Bytes::getBytes($rsp4[$i]));   //解密后数据密文转为字节数组查看
-                }
-            }catch(Exception $e){   //失败时抛出异常，如密码机报错则异常信息中包含错误码
-                echo 'Decrypt Failed, Message: ' .$e->getMessage();
-            }
+    try{
+        // 此方法为多块数据解密
+		$rsp4 = cmds::SW_blocksDecrypt($socket, 0, 0x00A, $key, null, 0, null, 0, null, $rsp3);
+		echo "rsp4 ArrayLength=".count($rsp4)."\n";
+        for($i = 0; $i<count($rsp4); $i++){
+            echo "\nPlain:".$i.$rsp4[$i]."\n";  //以字符串形式打印解密后的明文信息
+            var_dump(Bytes::getBytes($rsp4[$i]));   //解密后数据密文转为字节数组查看
         }
-        socket_close($socket);
-        
-        ?>
-    </body>
-</html>
+    }catch(Exception $e){   //失败时抛出异常，如密码机报错则异常信息中包含错误码
+        echo 'Decrypt Failed, Message: ' .$e->getMessage();
+    }
+}
+socket_close($socket);
+?>
 ```
 
 ## 使用指定密钥分别加密多组数据
