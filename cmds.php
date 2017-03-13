@@ -191,12 +191,12 @@ class cmds {
         socket_write($socket, $str, strlen($str));
         $rsp=socket_read($socket,2);
         if($rsp == FALSE){
-            throw new Exception(socket_strerror());
+            throw new Exception(socket_strerror(socket_last_error()));
         }
         $len = Bytes::bytesToShortBigEnd(Bytes::getBytes($rsp), 0);
         $rsp = socket_read($socket, $len);
         if($rsp == FALSE){
-            throw new Exception(socket_strerror());
+            throw new Exception(socket_strerror(socket_last_error()));
         }
 
 		$rv = intval(substr($rsp, 2, 2));
@@ -286,12 +286,12 @@ class cmds {
         socket_write($socket, $str, strlen($str));
         $rsp=socket_read($socket,2);
         if($rsp == FALSE){
-            throw new Exception(socket_strerror());
+            throw new Exception(socket_strerror(socket_last_error()));
         }
         $len = Bytes::bytesToShortBigEnd(Bytes::getBytes($rsp), 0);
         $rsp = socket_read($socket, $len);
         if($rsp == FALSE){
-            throw new Exception(socket_strerror());
+            throw new Exception(socket_strerror(socket_last_error()));
         }
         $errCode = ($rsp[2]&0xF) * 10 + ($rsp[3]&0xF);
         if($errCode != 0){
