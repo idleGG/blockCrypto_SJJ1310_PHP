@@ -66,7 +66,7 @@ class cmds {
         }
         
         if(!is_null($dataArray) && is_array($dataArray)){
-            $str = $str.sprintf("%02X", count($dataArray));
+            $str = $str.sprintf("%02d", count($dataArray));
         }
         foreach ($dataArray as $data){
             $str = $str.sprintf("%04X", strlen($data));
@@ -176,7 +176,7 @@ class cmds {
             throw new Exception("Invalid argument \$paddingFlag=$paddingFlag");
         }
             if(!is_null($dataArray) && is_array($dataArray)){
-            $str = $str.sprintf("%02X", count($dataArray));
+            $str = $str.sprintf("%02d", count($dataArray));
         }
         foreach ($dataArray as $data){
             $str = $str.sprintf("%04X", strlen($data));
